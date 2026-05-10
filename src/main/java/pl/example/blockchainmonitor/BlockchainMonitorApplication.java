@@ -9,6 +9,7 @@ import pl.example.blockchainmonitor.model.BlockchainStatistics;
 import pl.example.blockchainmonitor.model.FilterCriteria;
 import pl.example.blockchainmonitor.model.TransactionInfo;
 import pl.example.blockchainmonitor.reporting.ConsoleReporter;
+import pl.example.blockchainmonitor.reporting.CsvFileReporter;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -40,6 +41,11 @@ public class BlockchainMonitorApplication {
         System.out.println("Liczba transakcji po filtrowaniu: " + filteredTransactions.size());
 
         BlockchainStatistics statistics = processor.calculateStatistics(blocks);
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> reporter.printSummary(statistics)));
+        CsvFileReporter csvReporter = new CsvFileReporter();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            reporter.printSummary(statistics);
+            csvReporter.writeSummaryCsv(statistics);
+            csvReporter.writeTransactionsCsv(blocks);
+        }));
     }
 }
